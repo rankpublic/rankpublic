@@ -1,6 +1,14 @@
 export interface Env {
   ENVIRONMENT: string;
+  INTERNAL_API_TOKEN: string;
   NONCE_GUARD: DurableObjectNamespace;
+}
+
+function requireAuth(req: Request, env: Env): Response | null {
+  const auth = req.headers.get("authorization") ?? "";
+  const expected = `Bearer ${env.INTERNAL_API_TOKEN}`;
+  if (auth !== expected) return new Response("unauthorized", { status: 401 });
+  return null;
 }
 
 export class NonceGuard {
@@ -21,6 +29,9 @@ export default {
         { headers: { "content-type": "application/json" } }
       );
     }
+
+    const authErr = requireAuth(req, env);
+    if (authErr) return authErr;
 
     if (url.pathname === "/do") {
       const id = env.NONCE_GUARD.idFromName("gateway");
