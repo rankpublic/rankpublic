@@ -1,0 +1,8 @@
+{
+  "name": "rankpublic",
+  "private": true,
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev:web": "pnpm --filter @rankpublic/web dev"
+  }
+}
