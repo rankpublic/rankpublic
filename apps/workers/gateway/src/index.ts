@@ -19,26 +19,32 @@ export class NonceGuard {
   }
 }
 
+// Routes
+const PUBLIC_PATHS = new Set<string>(["/health"]);
+const INTERNAL_PATHS = new Set<string>(["/v1/ping"]);
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
 
-    if (url.pathname === "/health") {
+    // 1) Public routes
+    if (PUBLIC_PATHS.has(url.pathname)) {
+      // Saat ini cuma /health
       return new Response(
         JSON.stringify({ ok: true, service: "rankpublic-gateway", env: env.ENVIRONMENT }),
         { headers: { "content-type": "application/json" } }
       );
     }
 
-    const authErr = requireAuth(req, env);
-    if (authErr) return authErr;
+    // 2) Internal routes (explicit allowlist)
+    if (INTERNAL_PATHS.has(url.pathname)) {
+      const authErr = requireAuth(req, env);
+      if (authErr) return authErr;
 
-    if (url.pathname === "/do") {
-      const id = env.NONCE_GUARD.idFromName("gateway");
-      const stub = env.NONCE_GUARD.get(id);
-      return stub.fetch("https://do/");
+      if (url.pathname === "/v1/ping") return new Response("pong");
     }
 
+    // 3) Everything else is OFF
     return new Response("not found", { status: 404 });
   },
 };
