@@ -6,5 +6,6 @@ compatibility_date = "2024-10-31"
 GATEWAY_BASE_URL = "https://api.rankpublic.com"
 MAX_JOBS_PER_TICK = "10"
 
+
 [triggers]
-crons = ["*/1 * * * *"]
+crons = ["* * * * *"]
