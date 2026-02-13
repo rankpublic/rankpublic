@@ -115,6 +115,12 @@ export default {
       );
     }
 
+    // Step A: Drop browser noise fast
+    // Any GET (/, /favicon.ico, /js/*, /css/*, etc.) => 404 (no further routing)
+    if (req.method === "GET") {
+      return new Response("not found", { status: 404, headers: { "x-request-id": requestId } });
+    }
+
     // Internal: /v1/ping
     if (url.pathname === "/v1/ping") {
       const authErr = requireAuth(req, env);
